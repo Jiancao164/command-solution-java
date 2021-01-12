@@ -1,101 +1,78 @@
 import java.util.ArrayList;
 import java.util.List;
 
-// A class to simulate a directory in the system
-class Folder {
-    // current folder's name
-    String name;
-    // the parent folder
-    Folder parent;
-    // all sub-folders
-    List<Folder> subFolders;
-
-    public Folder(String name) {
-        this.name = name;
-        subFolders = new ArrayList<>();
-    }
-}
 
 public class Command {
-        Folder root;
-        String solution(String currentDirectory, String newDirectory) {
-            if (newDirectory == null || newDirectory.length() == 0) return "";
-            String[] folders = currentDirectory.split("/");
+    public String solution(String currDirectory, String newDirectory) {
+        // edge case
+        if (currDirectory == null || newDirectory == null) return "";
 
-            List<String> list = new ArrayList<>();
-
-            Folder path = root;
-            // move the path's pointer to the current directory
-            for (int i = 0; i < folders.length; i++) {
-                // skip edge case, ""
-                if (folders[i].length() == 0) continue;
-                for (Folder p : path.subFolders) {
-                    if (p.name.equals(folders[i])) {
-                        path = p;
-                        list.add(p.name);
-                        break;
-                    }
-                }
+        StringBuffer temp = new StringBuffer();
+        // remove duplicate slashes
+        for (int i = 0; i < newDirectory.length(); i++) {
+            char c = newDirectory.charAt(i);
+            if (i > 0 && c == '/' && newDirectory.charAt(i - 1) == '/') {
+                continue;
             }
-
-            StringBuffer sb = new StringBuffer(newDirectory);
-            int idx = 0;
-            // remove duplicate slashes
-            while (idx < sb.length()) {
-                if (idx - 1 >= 0 && sb.charAt(idx - 1) == '/' && sb.charAt(idx) == '/') {
-                    sb.deleteCharAt(idx);
-                } else {
-                    idx++;
-                }
-            }
-            newDirectory = sb.toString();
-            //check if the new directory is an absolute path
-            if (newDirectory.charAt(0) == '/') {
-                path = root;
-                newDirectory = newDirectory.substring(1);
-                folders = newDirectory.split("/");
-                list = new ArrayList<>();
-
-            } else {
-                folders = newDirectory.split("/");
-            }
-
-            for (int i = 0; i < folders.length; i++) {
-                //skip edge cases like when newDirectory is "/"
-                if (folders[i].length() == 0) continue;
-                // parse directories
-                if (folders[i].equals(".")) {
-                    continue;
-                } else if (folders[i].equals("..")) {
-                    if(path.parent != null) path = path.parent;
-                    if (list.size() > 0) list.remove(list.size() - 1);
-                } else {
-                    boolean flag = true;
-                    for (Folder p : path.subFolders) {
-                        if (p.name.equals(folders[i])) {
-                            list.add(p.name);
-                            path = p;
-                            flag = false;
-                            break;
-                        }
-                    }
-                    if (flag) return "No such file or directory";
-                }
-            }
-
-            StringBuffer res = new StringBuffer("/");
-            // construct the result from the list
-            for (int i = 0; i < list.size(); i++) {
-                String s = list.get(i);
-                if (i == 0) {
-                    res.append(s);
-                } else {
-                    res.append("/" + s);
-                }
-
-            }
-            return res.toString();
+            temp.append(c);
         }
+        newDirectory = temp.toString();
+
+        String[] newDirectories  = newDirectory.split("/");
+        // check if the new directory is valid
+        for (String d : newDirectories) {
+            if (d.length() == 0) continue;
+            if (d.length() == 1 && d.equals(".")) continue;
+            if (d.length() == 2 && d.equals("..")) continue;
+
+            for (char c : d.toCharArray()) {
+                if (c >= '0' && c <= '9') continue;
+                if (c >= 'a' && c <= 'z') continue;
+                if (c >= 'A' && c <= 'Z') continue;
+                return "No such file or directory";
+            }
+        }
+
+        List<String> list = new ArrayList<>();
+        newDirectories = newDirectory.split("/");
+
+        //check if the new directory is an absolute path
+        if (newDirectory.charAt(0) != '/') {
+
+            String[] currDirectories = currDirectory.split("/");
+            for (String s : currDirectories) {
+                if (s.length() == 0) continue;
+                list.add(s);
+            }
+
+        }
+
+        for (int i = 0; i < newDirectories.length; i++) {
+            if (newDirectories[i].length() == 0) continue;
+            // parse directories
+            if (newDirectories[i].equals(".")) {
+                continue;
+            } else if (newDirectories[i].equals("..")) {
+                if (list.size() > 0) list.remove(list.size() - 1);
+            } else {
+                list.add(newDirectories[i]);
+            }
+        }
+
+        StringBuffer res = new StringBuffer("/");
+        // construct the result from the list
+        for (int i = 0; i < list.size(); i++) {
+            String s = list.get(i);
+            if (i == 0) {
+                res.append(s);
+            } else {
+                res.append("/" + s);
+            }
+        }
+
+        return res.toString();
+
+    }
 }
 
 
