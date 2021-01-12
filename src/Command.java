@@ -22,8 +22,8 @@ public class Command {
         // check if the new directory is valid
         for (String d : newDirectories) {
             if (d.length() == 0) continue;
-            if (d.length() == 1 && d.equals(".")) continue;
-            if (d.length() == 2 && d.equals("..")) continue;
+            if (d.equals(".")) continue;
+            if (d.equals("..")) continue;
 
             for (char c : d.toCharArray()) {
                 if (c >= '0' && c <= '9') continue;
